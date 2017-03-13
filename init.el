@@ -179,6 +179,9 @@
  '(indent-tabs-mode nil)
  '(nxml-child-indent 4)
  '(nxml-outline-child-indent 4)
+ '(package-selected-packages
+   (quote
+    (helm-git-grep zenburn-theme sml-modeline sml-mode smex smart-mode-line slack projectile powerline pdf-tools magit-find-file ido-yes-or-no hydra helm-zhihu-daily helm-themes helm-swoop helm-ls-git helm-git helm-dash helm-ag flx evil dts-mode dired+ avy auto-complete)))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 
@@ -188,18 +191,29 @@
                   (interactive)
                   (dired "~/")))
 
-;; Winner mode
-(when (fboundp 'winner-mode)
-  (winner-mode 1))
 
 ;; enable windmove switching
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
-(global-set-key (kbd "C-c <deletechar>") 'windmove-left)
-(global-set-key (kbd "C-c <next>")       'windmove-right)
-(global-set-key (kbd "C-c <home>")       'windmove-up)
-(global-set-key (kbd "C-c <select>")     'windmove-down)
+(cond ((display-graphic-p)
+       ;; Graphical code - turn on winner mode
+       ;; Winner mode
+       (when (fboundp 'winner-mode)
+         (winner-mode 1))
+       )
+      (t
+       ;; Console-specific code
+       (global-set-key (kbd "C-c <left>") 'windmove-left)
+       (global-set-key (kbd "C-c <right>")'windmove-right)
+       (global-set-key (kbd "C-c <up>")   'windmove-up)
+       (global-set-key (kbd "C-c <down>") 'windmove-down)
+       (global-set-key (kbd "C-c C-<left>") 'windmove-left)
+       (global-set-key (kbd "C-c C-<right>")'windmove-right)
+       (global-set-key (kbd "C-c C-<up>")   'windmove-up)
+       (global-set-key (kbd "C-c C-<down>") 'windmove-down)
+       ))
+
 
 ;; Configure auto-complete
 (ac-config-default)
