@@ -169,8 +169,7 @@
  '(c-basic-offset 4)
  '(c-offsets-alist
    (quote
-    ((substatement . +)
-     (arglist-cont-nonempty . 8)
+    ((arglist-cont-nonempty . 8)
      (innamespace . 0))))
  '(column-number-mode t)
  '(custom-buffer-indent 4)
@@ -179,9 +178,6 @@
  '(indent-tabs-mode nil)
  '(nxml-child-indent 4)
  '(nxml-outline-child-indent 4)
- '(package-selected-packages
-   (quote
-    (helm-git-grep zenburn-theme sml-modeline sml-mode smex smart-mode-line slack projectile powerline pdf-tools magit-find-file ido-yes-or-no hydra helm-zhihu-daily helm-themes helm-swoop helm-ls-git helm-git helm-dash helm-ag flx evil dts-mode dired+ avy auto-complete)))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 
@@ -247,7 +243,8 @@
 (add-hook 'c++-mode-hook
           (lambda () (setq show-trailing-whitespace t)))
 
-(c-set-offset 'case-label '+)
+;; Not indenting case label
+;; (c-set-offset 'case-label '+)
 
 ;; unbind control z to stop accidentally exiting emacs
 (define-key global-map (kbd "RET") 'newline-and-indent)
