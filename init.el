@@ -169,7 +169,8 @@
  '(c-basic-offset 4)
  '(c-offsets-alist
    (quote
-    ((arglist-cont-nonempty . 8)
+    ((arglist-intro . ++)
+     (arglist-cont-nonempty . ++)
      (innamespace . 0))))
  '(column-number-mode t)
  '(custom-buffer-indent 4)
