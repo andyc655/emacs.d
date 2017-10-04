@@ -128,6 +128,9 @@
 ;;(helm-ls-git-ls)
 (global-set-key (kbd "C-c l") 'helm-ls-git-ls)
 
+;;(helm-find)
+(global-set-key (kbd "C-x f") 'helm-find)
+
 ;;(require 'helm-git-grep) ;; Not necessary if installed by package.el
 (global-set-key (kbd "C-c g") 'helm-git-grep)
 ;; Invoke `helm-git-grep' from isearch.
@@ -225,6 +228,8 @@
 ; use c style comments in c++
 (add-hook 'c++-mode-hook (lambda ()
                            (setq comment-start "/* " comment-end " */")))
+
+(add-hook 'sh-mode-hook (lambda () (local-unset-key (kbd "C-c C-c"))))
 
 ;; If the filepath has 'linux' in it, use linux style
 (defun maybe-linux-style ()
