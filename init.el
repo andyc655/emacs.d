@@ -184,10 +184,12 @@
     ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
  '(font-use-system-font t)
  '(helm-git-grep-candidate-number-limit 2000)
+ '(helm-split-window-inside-p t)
  '(indent-tabs-mode nil)
  '(nxml-child-indent 4)
  '(nxml-outline-child-indent 4)
  '(scroll-bar-mode nil)
+ '(split-height-threshold 160)
  '(tool-bar-mode nil))
 
 ;; Shortcut to open dired
@@ -301,3 +303,5 @@
 (global-set-key (kbd "C-c v") 'magit-log-buffer-file)
 (global-set-key (kbd "C-c c") 'magit-log-current)
 (global-set-key (kbd "C-c f") 'magit-find-file)
+
+(global-set-key (kbd "C-c p") 'run-python)
