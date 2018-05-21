@@ -284,8 +284,6 @@
  ;; If there is more than one, they won't work right.
  )
 
-;; unset the sh-case binding
-;;(add-hook 'sh-mode-hook (lambda () (local-set-key (kbd "C-c C-c")))
 
 (setq confirm-kill-emacs 'yes-or-no-p)
 
