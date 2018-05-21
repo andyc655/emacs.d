@@ -12,7 +12,9 @@
   (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 
-(load-theme 'zenburn t)
+(require 'moe-theme)
+(moe-dark)
+;;(load-theme 'zenburn t)
 ;; (menu-bar-mode -1)
 
 ;; comment uncomment
@@ -177,6 +179,9 @@
      (innamespace . 0))))
  '(column-number-mode t)
  '(custom-buffer-indent 4)
+ '(custom-safe-themes
+   (quote
+    ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
  '(font-use-system-font t)
  '(helm-git-grep-candidate-number-limit 2000)
  '(indent-tabs-mode nil)
