@@ -14,8 +14,6 @@
 
 (require 'moe-theme)
 (moe-dark)
-;;(load-theme 'zenburn t)
-;; (menu-bar-mode -1)
 
 ;; comment uncomment
 (global-set-key (kbd "C-c C-c") 'comment-region)
@@ -156,9 +154,6 @@
 
 (helm-adaptive-mode t)
 (helm-mode 1)
-
-;; semantic mode
-;; (semantic-mode 1)
 
 ;; make all backup files to go to .saves
 (setq backup-directory-alist `(("." . "~/.saves")))
