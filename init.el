@@ -192,8 +192,7 @@
  '(nxml-child-indent 4)
  '(nxml-outline-child-indent 4)
  '(scroll-bar-mode nil)
- '(split-height-threshold 160)
- '(tool-bar-mode nil))
+ '(split-height-threshold 160))
 
 ;; Shortcut to open dired
 (global-set-key (kbd "S-<f1>")
