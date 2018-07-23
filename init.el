@@ -278,9 +278,9 @@
 (define-key input-decode-map "\e[1;5B" [C-down])
 
 ;; more compact mode line
-(setq sml/shorten-directory t)
-(setq sml/shorten-modes t)
-(sml/setup)
+;; (setq sml/shorten-directory t)
+;; (setq sml/shorten-modes t)
+;; (sml/setup)
 
 ;; y or n
 (fset 'yes-or-no-p 'y-or-n-p)
