@@ -12,6 +12,14 @@
   (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 
+;;; Nice size for the default window
+(defun get-default-height ()
+       (/ (- (display-pixel-height) 120)
+          (frame-char-height)))
+
+(add-to-list 'default-frame-alist '(fullscreen . fullwidth))
+(add-to-list 'default-frame-alist (cons 'height (get-default-height)))
+
 (require 'moe-theme)
 (moe-dark)
 
