@@ -1,4 +1,4 @@
-;;; init.el --- Final Corrected Config 2025 -*- lexical-binding: t -*-
+;;; init.el
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -11,17 +11,16 @@
 (setq use-package-always-ensure t)
 
 ;; -----------------------------------------------------------------------------
-;; 1. HARDWARE LAYER: Make Terminal Send Shift-Arrow Codes
+;; 1. HARDWARE LAYER: Shift & Ctrl Keys for Terminal
 ;; -----------------------------------------------------------------------------
 (unless (display-graphic-p)
-  ;; Ctrl + Arrows (for word movement)
+  ;; Ctrl + Arrows (Word movement)
   (define-key input-decode-map "\e[1;5A" [C-up])
   (define-key input-decode-map "\e[1;5B" [C-down])
   (define-key input-decode-map "\e[1;5C" [C-right])
   (define-key input-decode-map "\e[1;5D" [C-left])
 
-  ;; Shift + Arrows (Needed for Windmove)
-  ;; We map these raw terminal codes to the Emacs "Shift-Arrow" events
+  ;; Shift + Arrows (Windmove)
   (define-key input-decode-map "\e[1;2A" [S-up])
   (define-key input-decode-map "\e[1;2B" [S-down])
   (define-key input-decode-map "\e[1;2C" [S-right])
@@ -40,23 +39,21 @@
 ;; B. WINDMOVE (Window Switching)
 (use-package windmove
   :config
-  ;; 1. The "Magic Line" from your old config.
-  ;; This binds SHIFT + ARROWS to move between windows.
-  (windmove-default-keybindings)
+  ;; 1. The "Magic Line" - binds Shift+Arrows to window switching
+  (windmove-default-keybindings) 
 
   ;; 2. Your Manual Backup Bindings (C-c + Arrow)
   (global-set-key (kbd "C-c <left>")  'windmove-left)
   (global-set-key (kbd "C-c <right>") 'windmove-right)
   (global-set-key (kbd "C-c <up>")    'windmove-up)
   (global-set-key (kbd "C-c <down>")  'windmove-down)
-
+  
   (global-set-key (kbd "C-c C-<left>")  'windmove-left)
   (global-set-key (kbd "C-c C-<right>") 'windmove-right)
   (global-set-key (kbd "C-c C-<up>")    'windmove-up)
   (global-set-key (kbd "C-c C-<down>")  'windmove-down))
 
-;; C. Winner Mode (Undo window changes)
-;; Only enable in GUI to ensure no terminal key conflicts
+;; C. Winner Mode (Undo window changes) - GUI Only
 (cond ((display-graphic-p)
        (when (fboundp 'winner-mode)
          (winner-mode 1))))
@@ -68,7 +65,8 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq confirm-kill-emacs 'yes-or-no-p)
 
-(global-display-line-numbers-mode 1)
+(global-display-line-numbers-mode 1) 
+(setq display-line-numbers-type 'relative) 
 
 (electric-pair-mode 1)
 (delete-selection-mode 1)
@@ -82,15 +80,36 @@
 
 (add-to-list 'default-frame-alist '(fullscreen . fullwidth))
 (when (display-graphic-p)
-    (add-to-list 'default-frame-alist (cons 'height
+    (add-to-list 'default-frame-alist (cons 'height 
         (/ (- (display-pixel-height) 120) (frame-char-height)))))
 
 ;; -----------------------------------------------------------------------------
 ;; 4. THE VERTICO STACK (Replaces Helm)
 ;; -----------------------------------------------------------------------------
 (use-package vertico
-  :init (vertico-mode)
-  :config (setq vertico-cycle t))
+  :init 
+  (vertico-mode)
+  (vertico-multiform-mode) 
+  
+  :config 
+  (setq vertico-cycle t)
+
+  ;; DEFINE THE 1/3 HEIGHT RULE
+  ;; This creates a display action that uses the bottom 33% of the frame
+  (add-to-list 'display-buffer-alist
+               '(".*" (display-buffer-in-side-window)
+                 (window-height . 0.33)    ;; <--- 1/3 HEIGHT IS SET HERE
+                 (side . bottom)
+                 (slot . -1)))
+
+  ;; APPLY THE RULE TO SPECIFIC COMMANDS
+  (setq vertico-multiform-commands
+        '((consult-git-grep buffer)
+          (consult-ripgrep buffer)
+          (consult-grep buffer)
+          (consult-line buffer)
+          (consult-imenu buffer)
+          (consult-outline buffer))))
 
 (use-package savehist
   :init (savehist-mode))
@@ -105,20 +124,20 @@
 
 (use-package consult
   :bind
-  (("M-q"     . consult-line)
-   ("C-c M-q" . consult-line-multi)
+  (("M-q"     . consult-line)          
+   ("C-c M-q" . consult-line-multi)    
    ("C-x M-q" . consult-line-multi)
-   ("C-x b"   . consult-buffer)
-   ("C-x C-b" . consult-buffer)
-   ("C-x C-f" . find-file)
-   ("C-x C-r" . consult-recent-file)
-   ("C-x f"   . consult-find)
-   ("M-y"     . consult-yank-pop)
-   ("C-c o"   . consult-outline)
-   ("C-c r"   . consult-history)
-   ("C-c e"   . consult-ripgrep)
-   ("C-c a"   . consult-grep)
-   ("C-c g"   . consult-git-grep))
+   ("C-x b"   . consult-buffer)        
+   ("C-x C-b" . consult-buffer)        
+   ("C-x C-f" . find-file)             
+   ("C-x C-r" . consult-recent-file)   
+   ("C-x f"   . consult-find)          
+   ("M-y"     . consult-yank-pop)      
+   ("C-c o"   . consult-outline)       
+   ("C-c r"   . consult-history)       
+   ("C-c e"   . consult-ripgrep)       
+   ("C-c a"   . consult-grep)          
+   ("C-c g"   . consult-git-grep))     
   :config
   (setq consult-preview-key 'any))
 
@@ -140,7 +159,7 @@
   (corfu-auto t)
   (corfu-quit-no-match t)
   :bind (:map corfu-map
-         ;; Release arrow keys so you can move cursor (or windmove) even if completion is open
+         ;; Release keys so you can move while completion is open
          ("C-<left>" . nil)
          ("C-<right>" . nil)
          ("S-<left>" . nil)
@@ -155,7 +174,7 @@
 (setq c-default-style "linux")
 (setq c-basic-offset 4)
 
-(add-hook 'c++-mode-hook (lambda ()
+(add-hook 'c++-mode-hook (lambda () 
    (setq comment-start "/* " comment-end " */")
    (setq show-trailing-whitespace t)))
 
