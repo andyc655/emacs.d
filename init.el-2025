@@ -1,4 +1,4 @@
-;;; init.el
+;;; init.el --- Final Config: Helm-Style Popups (1/3 Height) -*- lexical-binding: t -*-
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -39,21 +39,19 @@
 ;; B. WINDMOVE (Window Switching)
 (use-package windmove
   :config
-  ;; 1. The "Magic Line" - binds Shift+Arrows to window switching
-  (windmove-default-keybindings) 
-
-  ;; 2. Your Manual Backup Bindings (C-c + Arrow)
+  (windmove-default-keybindings) ;; Shift+Arrow
+  
+  ;; C-c + Arrow shortcuts
   (global-set-key (kbd "C-c <left>")  'windmove-left)
   (global-set-key (kbd "C-c <right>") 'windmove-right)
   (global-set-key (kbd "C-c <up>")    'windmove-up)
   (global-set-key (kbd "C-c <down>")  'windmove-down)
-  
   (global-set-key (kbd "C-c C-<left>")  'windmove-left)
   (global-set-key (kbd "C-c C-<right>") 'windmove-right)
   (global-set-key (kbd "C-c C-<up>")    'windmove-up)
   (global-set-key (kbd "C-c C-<down>")  'windmove-down))
 
-;; C. Winner Mode (Undo window changes) - GUI Only
+;; C. Winner Mode (GUI Only)
 (cond ((display-graphic-p)
        (when (fboundp 'winner-mode)
          (winner-mode 1))))
@@ -94,21 +92,28 @@
   :config 
   (setq vertico-cycle t)
 
-  ;; DEFINE THE 1/3 HEIGHT RULE
-  ;; This creates a display action that uses the bottom 33% of the frame
+  ;; 1. FORCE 1/3 HEIGHT FOR VERTICO WINDOWS
   (add-to-list 'display-buffer-alist
-               '(".*" (display-buffer-in-side-window)
-                 (window-height . 0.33)    ;; <--- 1/3 HEIGHT IS SET HERE
+               '("^\\*Vertico" 
+                 (display-buffer-in-side-window)
+                 (window-height . 0.33)  ;; <--- EXACTLY 1/3 HEIGHT
                  (side . bottom)
                  (slot . -1)))
 
-  ;; APPLY THE RULE TO SPECIFIC COMMANDS
+  ;; 2. FORCE "BUFFER" MODE FOR EVERYTHING (Files, Buffers, Grep)
+  ;; This makes C-x C-f and C-x b pop up a window instead of using the minibuffer line.
+  (setq vertico-multiform-categories
+        '((file buffer)
+          (buffer buffer)
+          (consult-grep buffer)
+          (consult-location buffer)
+          (imenu buffer)
+          (jinx buffer)))
+
   (setq vertico-multiform-commands
         '((consult-git-grep buffer)
           (consult-ripgrep buffer)
-          (consult-grep buffer)
           (consult-line buffer)
-          (consult-imenu buffer)
           (consult-outline buffer))))
 
 (use-package savehist
@@ -159,7 +164,6 @@
   (corfu-auto t)
   (corfu-quit-no-match t)
   :bind (:map corfu-map
-         ;; Release keys so you can move while completion is open
          ("C-<left>" . nil)
          ("C-<right>" . nil)
          ("S-<left>" . nil)
