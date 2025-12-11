@@ -137,6 +137,7 @@
   :init (marginalia-mode))
 
 (use-package consult
+  ;; Force M-q to override other modes
   :bind*
   (("M-q"     . consult-line)
    ("C-c M-q" . consult-line-multi)
@@ -148,11 +149,20 @@
    ("C-x f"   . consult-find)
    ("M-y"     . consult-yank-pop)
    ("C-c o"   . consult-outline)
+   ("C-c r"   . consult-history)
    ("C-c e"   . consult-ripgrep)
    ("C-c a"   . consult-grep)
    ("C-c g"   . consult-git-grep))
+
   :config
-  (setq consult-preview-key 'any))
+  (setq consult-preview-key 'any)
+
+  ;; --- CRITICAL FIX: DISABLE GROUPING ---
+  ;; This forces every line to look like: "file:line: content"
+  ;; instead of grouping them under headers.
+  (consult-customize
+   consult-ripgrep consult-git-grep consult-grep consult-bookmark consult-recent-file
+   :group nil))  ;; <--- THIS DISABLES THE GROUPING HEADERS
 
 (use-package embark
   :bind (("C-." . embark-act) ("C-;" . embark-dwim)))
