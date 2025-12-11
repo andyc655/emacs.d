@@ -1,1 +1,283 @@
-;; add empty new file
+;; chatgpt emacs config 2025
+
+(setq load-prefer-newer t)
+(setq ad-redefinition-action 'accept)
+
+;; basic packages settings
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))
+(package-initialize)
+
+;;; Nice size for the default window
+(defun get-default-height ()
+  (/ (- (display-pixel-height) 120)
+     (frame-char-height)))
+
+(add-to-list 'default-frame-alist '(fullscreen . fullwidth))
+(add-to-list 'default-frame-alist (cons 'height (get-default-height)))
+
+(require 'moe-theme)
+(moe-dark)
+
+;; comment uncomment
+(global-set-key (kbd "C-c C-c") 'comment-region)
+(global-set-key (kbd "C-c C-q") 'uncomment-region)
+
+;; highlight regexp
+(global-set-key (kbd "C-c /") 'highlight-regexp)
+
+;; replace string
+(global-set-key (kbd "C-c '") 'replace-string)
+(global-set-key (kbd "C-c ;") 'replace-regexp)
+
+;; remap mark-sexp
+(global-set-key (kbd "M-s") 'mark-sexp)
+
+(setq-default line-spacing 1)
+
+;; --------------------------------------------------------------------
+;; Modern completion stack: Vertico + Orderless + Marginalia + Consult + Embark
+;; --------------------------------------------------------------------
+
+;; Ensure archive contents available for auto-install
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(dolist (pkg '(vertico orderless marginalia consult embark embark-consult))
+  (unless (package-installed-p pkg)
+    (package-install pkg)))
+
+;; Vertico: minibuffer completion UI
+(require 'vertico)
+(vertico-mode 1)
+
+;; Persist minibuffer history
+(savehist-mode 1)
+
+;; Orderless: powerful matching (fuzzy-ish, Helm-like)
+(require 'orderless)
+(setq completion-styles '(orderless)
+      completion-category-defaults nil
+      completion-category-overrides
+      '((file (styles basic-remote orderless))))
+
+;; Marginalia: annotations in completion lists
+(require 'marginalia)
+(marginalia-mode 1)
+
+;; Consult: Helm-like commands
+(require 'consult)
+
+;; Project integration for consult-{ripgrep,grep,find}
+(require 'project)
+(setq consult-project-root-function
+      (lambda ()
+        (when-let (proj (project-current))
+          (car (project-roots proj)))))
+
+;; Make previews feel responsive
+(setq consult-preview-key '(:debounce 0.2 any))
+
+;; Embark: actions on completion candidates
+(require 'embark)
+(global-set-key (kbd "C-.") #'embark-act)       ;; action menu
+(global-set-key (kbd "C-;") #'embark-dwim)      ;; smart default action
+(global-set-key (kbd "C-h B") #'embark-bindings)
+
+(require 'embark-consult)
+(add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode)
+
+;; Keybindings roughly matching your old Helm usage
+;; M-x & kill ring
+(global-set-key (kbd "M-x") #'execute-extended-command)
+(global-set-key (kbd "M-y") #'consult-yank-pop)
+
+;; Buffers
+(global-set-key (kbd "C-x b")   #'consult-buffer)
+(global-set-key (kbd "C-x C-b") #'consult-buffer)
+
+;; Files & recent files
+(global-set-key (kbd "C-x C-f") #'find-file)
+(global-set-key (kbd "C-x C-r") #'consult-recent-file)
+
+;; Find (like helm-find)
+(global-set-key (kbd "C-x f") #'consult-find)
+
+;; In-buffer and multi-buffer search (helm-swoop / multi-swoop)
+(global-set-key (kbd "M-q")       #'consult-line)
+(global-set-key (kbd "C-c M-q")   #'consult-line-multi)
+(global-set-key (kbd "C-x M-q")   #'consult-line-multi)
+
+;; Optional: “back to last interesting place” (rough stand-in for M-Q)
+(global-set-key (kbd "M-Q") #'consult-global-mark)
+
+;; Occur
+(global-set-key (kbd "C-c o") #'occur)
+
+;; Top (helm-top) -> proced
+(global-set-key (kbd "C-c t") #'proced)
+
+;; Resume / history (closest to helm-resume)
+(global-set-key (kbd "C-c r") #'consult-history)
+
+;; Grep / ripgrep / ag replacements
+(global-set-key (kbd "C-c e") #'consult-ripgrep) ;; like helm-do-grep-ag
+(global-set-key (kbd "C-c a") #'consult-grep)    ;; like helm-do-ag
+
+;; Git grep
+(global-set-key (kbd "C-c g") #'consult-git-grep)
+
+;; C-c l previously helm-ls-git-ls; here we make it "project files"
+(global-set-key (kbd "C-c l") #'project-find-file)
+
+;; isearch integration: M-q to jump to consult-line, C-c g to git-grep
+(with-eval-after-load 'isearch
+  (define-key isearch-mode-map (kbd "M-q")   #'consult-line)
+  (define-key isearch-mode-map (kbd "C-c g") #'consult-git-grep))
+
+;; We no longer need C-c h as helm prefix; leave it free (or use later)
+(global-unset-key (kbd "C-c h"))
+
+;; --------------------------------------------------------------------
+;; End modern completion stack
+;; --------------------------------------------------------------------
+
+;; make all backup files to go to .saves
+(setq backup-directory-alist `(("." . "~/.saves")))
+
+;; type after select will replace
+(delete-selection-mode 1)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(c-basic-offset 4)
+ '(c-offsets-alist
+   (quote
+    ((arglist-intro . ++)
+     (arglist-cont-nonempty . ++)
+     (innamespace . 0))))
+ '(column-number-mode t)
+ '(custom-buffer-indent 4)
+ '(custom-safe-themes
+   (quote
+    ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
+ '(font-use-system-font t)
+ ;; These helm-related custom vars are now harmless; they just won't be used.
+ '(helm-git-grep-candidate-number-limit 2000)
+ '(helm-split-window-inside-p t)
+ '(indent-tabs-mode nil)
+ '(nxml-child-indent 4)
+ '(nxml-outline-child-indent 4)
+ '(scroll-bar-mode nil)
+ '(split-height-threshold 160))
+
+;; Shortcut to open dired
+(global-set-key (kbd "S-<f1>")
+                (lambda ()
+                  (interactive)
+                  (dired "~/")))
+
+;; enable windmove switching
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
+
+(cond ((display-graphic-p)
+       ;; Graphical code - turn on winner mode
+       ;; Winner mode
+       (when (fboundp 'winner-mode)
+         (winner-mode 1)))
+      (t
+       ;; Console-specific code
+       (global-set-key (kbd "C-c <left>") 'windmove-left)
+       (global-set-key (kbd "C-c <right>")'windmove-right)
+       (global-set-key (kbd "C-c <up>")   'windmove-up)
+       (global-set-key (kbd "C-c <down>") 'windmove-down)
+       (global-set-key (kbd "C-c C-<left>") 'windmove-left)
+       (global-set-key (kbd "C-c C-<right>")'windmove-right)
+       (global-set-key (kbd "C-c C-<up>")   'windmove-up)
+       (global-set-key (kbd "C-c C-<down>") 'windmove-down)))
+
+;; Configure auto-complete
+(ac-config-default)
+
+;; Configure C indentation style
+(require 'cc-mode)
+(setq c-default-style "linux")
+(setq c-basic-offset 4)
+(setq tab-width 4)
+(setq-default indent-tabs-mode nil)
+
+;; use c style comments in c++
+(add-hook 'c++-mode-hook (lambda ()
+                           (setq comment-start "/* " comment-end " */")))
+
+(add-hook 'sh-mode-hook (lambda () (local-unset-key (kbd "C-c C-c"))))
+
+;; If the filepath has 'linux' in it, use linux style
+(defun maybe-linux-style ()
+  (when (and buffer-file-name
+             (string-match "linux" buffer-file-name))
+    (progn
+      (c-set-style "linux")
+      (setq tab-width 8)
+      (setq indent-tabs-mode t)
+      (setq c-basic-offset 8))))
+
+(add-hook 'c-mode-hook 'maybe-linux-style)
+
+;; Deal with pesky whitespace
+(add-hook 'c-mode-hook
+          (lambda () (setq show-trailing-whitespace t)))
+(add-hook 'c++-mode-hook
+          (lambda () (setq show-trailing-whitespace t)))
+
+;; Not indenting case label
+;; (c-set-offset 'case-label '+)
+
+;; unbind control z to stop accidentally exiting emacs
+(define-key global-map (kbd "RET") 'newline-and-indent)
+
+;; Set global linenum and hl-line mode
+(global-linum-mode 1)
+(electric-pair-mode 1)
+
+(require 'whitespace)
+(setq whitespace-style '(face empty tabs lines-tail trailing))
+(global-whitespace-mode t)
+
+;; --- Navigation keys you mentioned (preserved) ---
+(global-set-key "\M-[1;5C"    'forward-word)  ; Ctrl+right => forward word
+(global-set-key "\M-[1;5D"    'backward-word) ; Ctrl+left  => backward word
+(define-key input-decode-map "\e[1;5A" [C-up])
+(define-key input-decode-map "\e[1;5B" [C-down])
+;; (If you want C-up/down bound to something specific, we can add it here.)
+
+;; y or n
+(fset 'yes-or-no-p 'y-or-n-p)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+(setq confirm-kill-emacs 'yes-or-no-p)
+
+(setq x-select-enable-clipboard t)
+
+;; magit Shortcut
+(global-set-key (kbd "C-c s") 'magit-status)
+(global-set-key (kbd "C-c d") 'magit-diff)
+(global-set-key (kbd "C-c b") 'magit-diff-buffer-file)
+(global-set-key (kbd "C-c v") 'magit-log-buffer-file)
+(global-set-key (kbd "C-c c") 'magit-log-current)
+(global-set-key (kbd "C-c f") 'magit-find-file)
+
+(global-set-key (kbd "C-c p") 'run-python)
