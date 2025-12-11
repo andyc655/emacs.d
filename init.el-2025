@@ -40,7 +40,7 @@
 (use-package windmove
   :config
   (windmove-default-keybindings) ;; Shift+Arrow
-  
+
   ;; C-c + Arrow shortcuts
   (global-set-key (kbd "C-c <left>")  'windmove-left)
   (global-set-key (kbd "C-c <right>") 'windmove-right)
@@ -77,30 +77,39 @@
 
 (add-to-list 'default-frame-alist '(fullscreen . fullwidth))
 (when (display-graphic-p)
-    (add-to-list 'default-frame-alist (cons 'height 
+    (add-to-list 'default-frame-alist (cons 'height
         (/ (- (display-pixel-height) 120) (frame-char-height)))))
 
 ;; -----------------------------------------------------------------------------
 ;; 4. THE VERTICO STACK (Replaces Helm)
 ;; -----------------------------------------------------------------------------
 (use-package vertico
-  :init 
+  :init
   (vertico-mode)
-  (vertico-multiform-mode) 
-  
-  :config 
+  (vertico-multiform-mode)
+
+  :config
   (setq vertico-cycle t)
 
-  ;; 1. FORCE 1/3 HEIGHT FOR VERTICO WINDOWS
+  ;; --- CRITICAL FIX FOR RESUME (C-c r) ---
+  ;; This enables the "History" of your searches so they can be resumed.
+  (require 'vertico-repeat)
+  (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+
+  ;; Bind C-c r globally to "Repeat last command" (Like helm-resume)
+  (global-set-key (kbd "C-c r") #'vertico-repeat)
+
+  ;; --- WINDOW SIZE & POPUP RULES ---
+
+  ;; 1. Force 1/3 height for Vertico buffers
   (add-to-list 'display-buffer-alist
-               '("^\\*Vertico" 
+               '("^\\*Vertico"
                  (display-buffer-in-side-window)
-                 (window-height . 0.33)  ;; <--- EXACTLY 1/3 HEIGHT
+                 (window-height . 0.33)
                  (side . bottom)
                  (slot . -1)))
 
-  ;; 2. FORCE "BUFFER" MODE FOR EVERYTHING (Files, Buffers, Grep)
-  ;; This makes C-x C-f and C-x b pop up a window instead of using the minibuffer line.
+  ;; 2. Force these categories to pop up (Buffer mode)
   (setq vertico-multiform-categories
         '((file buffer)
           (buffer buffer)
@@ -109,6 +118,7 @@
           (imenu buffer)
           (jinx buffer)))
 
+  ;; 3. Force these specific commands to pop up
   (setq vertico-multiform-commands
         '((consult-git-grep buffer)
           (consult-ripgrep buffer)
@@ -127,21 +137,20 @@
   :init (marginalia-mode))
 
 (use-package consult
-  :bind
-  (("M-q"     . consult-line)          
-   ("C-c M-q" . consult-line-multi)    
+  :bind*
+  (("M-q"     . consult-line)
+   ("C-c M-q" . consult-line-multi)
    ("C-x M-q" . consult-line-multi)
-   ("C-x b"   . consult-buffer)        
-   ("C-x C-b" . consult-buffer)        
-   ("C-x C-f" . find-file)             
-   ("C-x C-r" . consult-recent-file)   
-   ("C-x f"   . consult-find)          
-   ("M-y"     . consult-yank-pop)      
-   ("C-c o"   . consult-outline)       
-   ("C-c r"   . consult-history)       
-   ("C-c e"   . consult-ripgrep)       
-   ("C-c a"   . consult-grep)          
-   ("C-c g"   . consult-git-grep))     
+   ("C-x b"   . consult-buffer)
+   ("C-x C-b" . consult-buffer)
+   ("C-x C-f" . find-file)
+   ("C-x C-r" . consult-recent-file)
+   ("C-x f"   . consult-find)
+   ("M-y"     . consult-yank-pop)
+   ("C-c o"   . consult-outline)
+   ("C-c e"   . consult-ripgrep)
+   ("C-c a"   . consult-grep)
+   ("C-c g"   . consult-git-grep))
   :config
   (setq consult-preview-key 'any))
 
@@ -153,6 +162,9 @@
 
 (use-package wgrep
   :config (setq wgrep-auto-save-buffer t))
+
+;; Git/project "find file" – replacement for helm-ls-git-ls
+(global-set-key (kbd "C-c l") #'project-find-file)
 
 ;; -----------------------------------------------------------------------------
 ;; 5. CODE & UTILS
@@ -177,7 +189,7 @@
 (setq c-default-style "linux")
 (setq c-basic-offset 4)
 
-(add-hook 'c++-mode-hook (lambda () 
+(add-hook 'c++-mode-hook (lambda ()
    (setq comment-start "/* " comment-end " */")
    (setq show-trailing-whitespace t)))
 
